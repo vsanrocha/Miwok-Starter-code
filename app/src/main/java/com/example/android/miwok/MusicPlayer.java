@@ -23,7 +23,6 @@ public class MusicPlayer {
     private static String PAUSE_SERVICE_CMD = "com.sec.android.app.music.musicservicecommand.pause";
     private static String PLAY_SERVICE_CMD = "com.sec.android.app.music.musicservicecommand.play";
     private static MusicPlayer sInstance;
-    ;
     private int mUri;
     private Context mContext;
     private boolean mAudioFocusGranted = false;
@@ -95,7 +94,6 @@ public class MusicPlayer {
                 mPlayer = MediaPlayer.create(mContext, mUri);
             }
             if (!mAudioFocusGranted && requestAduioFocus()) {
-                forceMusicStop();
                 setupBroadcastReceiver();
             }
             mPlayer.start();
