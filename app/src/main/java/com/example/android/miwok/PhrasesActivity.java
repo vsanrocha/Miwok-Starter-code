@@ -50,8 +50,6 @@ public class PhrasesActivity extends AppCompatActivity {
                 }
 
                 mMusicPlayer.play();
-
-
             }
         });
 

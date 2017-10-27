@@ -1,6 +1,5 @@
 package com.example.android.miwok;
 
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,14 +11,7 @@ import java.util.ArrayList;
 public class FamilyActivity
         extends AppCompatActivity {
 
-    private MediaPlayer mPlayer;
-
-    private MediaPlayer.OnCompletionListener mCompletionListener = (new MediaPlayer.OnCompletionListener() {
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-            releaseMediaPlayer();
-        }
-    });
+    private MusicPlayer mMusicPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,29 +44,27 @@ public class FamilyActivity
 
                 Word word = words.get(position);
 
-                mPlayer = MediaPlayer.create(FamilyActivity.this, word.getMiwokAudio());
+                if (mMusicPlayer == null) {
+                    mMusicPlayer = new MusicPlayer(FamilyActivity.this, word.getMiwokAudio());
+                }
 
-                mPlayer.start();
-
-                mPlayer.setOnCompletionListener(mCompletionListener);
+                mMusicPlayer.play();
             }
-
-
         });
 
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
         releaseMediaPlayer();
 
     }
 
-    public void releaseMediaPlayer(){
-        if (mPlayer != null){
-            mPlayer.release();
-            mPlayer = null;
+    public void releaseMediaPlayer() {
+        if (mMusicPlayer != null) {
+            mMusicPlayer.releaseMediaPlayer();
+            mMusicPlayer = null;
         }
     }
 }
