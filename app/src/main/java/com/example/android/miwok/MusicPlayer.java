@@ -1,9 +1,6 @@
 package com.example.android.miwok;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 
@@ -13,24 +10,13 @@ import android.media.MediaPlayer;
 
 public class MusicPlayer {
 
-    private static final String CMD_NAME = "command";
-    private static final String CMD_PAUSE = "pause";
-    private static final String CMD_STOP = "pause";
-    private static final String CMD_PLAY = "play";
-
-
-    private static String SERVICE_CMD = "com.sec.android.app.music.musicservicecommand";
-    private static String PAUSE_SERVICE_CMD = "com.sec.android.app.music.musicservicecommand.pause";
-    private static String PLAY_SERVICE_CMD = "com.sec.android.app.music.musicservicecommand.play";
-    private static MusicPlayer sInstance;
     private int mUri;
     private Context mContext;
     private boolean mAudioFocusGranted = false;
     private boolean mAudioIsPlaying = false;
     private MediaPlayer mPlayer;
     private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
-    private BroadcastReceiver mIntentReceiver;
-    private boolean mReceiverRegistered = false;
+
     private MediaPlayer.OnCompletionListener mCompletionListener = (new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
@@ -38,24 +24,10 @@ public class MusicPlayer {
         }
     });
 
-    // Jellybean
-    {
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            SERVICE_CMD = "com.android.music.musicservicecommand";
-            PAUSE_SERVICE_CMD = "com.android.music.musicservicecommand.pause";
-            PLAY_SERVICE_CMD = "com.android.music.musicservicecommand.play";
-        }
-    }
-
 
     public MusicPlayer(Context context, int uri) {
         mContext = context;
         mUri = uri;
-    }
-
-
-    private MusicPlayer(Context context) {
-        mContext = context;
 
         mOnAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
 
@@ -81,23 +53,17 @@ public class MusicPlayer {
         };
     }
 
-    public static MusicPlayer getsInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new MusicPlayer(context);
-        }
-        return sInstance;
-    }
-
     public void play() {
         if (!mAudioIsPlaying) {
-            if (mPlayer == null) {
-                mPlayer = MediaPlayer.create(mContext, mUri);
+            requestAduioFocus();
+            if (mAudioFocusGranted) {
+                if (mPlayer == null) {
+                    mPlayer = MediaPlayer.create(mContext, mUri);
+                }
+                mPlayer.start();
+                mAudioIsPlaying = true;
+
             }
-            if (!mAudioFocusGranted && requestAduioFocus()) {
-                setupBroadcastReceiver();
-            }
-            mPlayer.start();
-            mAudioIsPlaying = true;
         }
     }
 
@@ -122,6 +88,7 @@ public class MusicPlayer {
         if (mPlayer != null) {
             mPlayer.release();
             mPlayer = null;
+            abandonAudioFocus();
         }
     }
 
@@ -147,45 +114,5 @@ public class MusicPlayer {
             mAudioFocusGranted = false;
         }
 
-    }
-
-    private void setupBroadcastReceiver() {
-        mIntentReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                String cmd = intent.getStringExtra(CMD_NAME);
-
-                if (PAUSE_SERVICE_CMD.equals(action)
-                        || (SERVICE_CMD.equals(action) && CMD_PAUSE.equals(cmd))) {
-                    play();
-                }
-
-                if (PLAY_SERVICE_CMD.equals(action)
-                        || (SERVICE_CMD.equals(action) && CMD_PLAY.equals(cmd))) {
-                    pause();
-                }
-            }
-        };
-
-        // Do the right thing when something else tries to play
-        if (!mReceiverRegistered) {
-            IntentFilter commandFilter = new IntentFilter();
-            commandFilter.addAction(SERVICE_CMD);
-            commandFilter.addAction(PAUSE_SERVICE_CMD);
-            commandFilter.addAction(PLAY_SERVICE_CMD);
-            mContext.registerReceiver(mIntentReceiver, commandFilter);
-            mReceiverRegistered = true;
-        }
-    }
-
-    private void forceMusicStop() {
-        AudioManager am = (AudioManager) mContext
-                .getSystemService(Context.AUDIO_SERVICE);
-        if (am.isMusicActive()) {
-            Intent intentToStop = new Intent(SERVICE_CMD);
-            intentToStop.putExtra(CMD_NAME, CMD_STOP);
-            mContext.sendBroadcast(intentToStop);
-        }
     }
 }
