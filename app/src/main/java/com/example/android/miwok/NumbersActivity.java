@@ -1,7 +1,10 @@
 package com.example.android.miwok;
 
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -16,6 +19,7 @@ public class NumbersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
+
 
         final ArrayList<Word> words = new ArrayList<Word>();
         words.add(new Word(R.raw.number_one,"one", "lutti", R.drawable.number_one));
@@ -51,6 +55,8 @@ public class NumbersActivity extends AppCompatActivity {
             }
         });
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -66,4 +72,15 @@ public class NumbersActivity extends AppCompatActivity {
             mMusicPlayer = null;
         }
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
+
