@@ -42,9 +42,11 @@ public class MusicPlayer {
                         break;
                     case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                         pause();
+                        mPlayer.seekTo(0);
                         break;
                     case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                         pause();
+                        mPlayer.seekTo(0);
                         break;
 
                 }

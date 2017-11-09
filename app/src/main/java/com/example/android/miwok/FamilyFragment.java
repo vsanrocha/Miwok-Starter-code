@@ -1,25 +1,28 @@
 package com.example.android.miwok;
 
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class FamilyActivity
-        extends AppCompatActivity {
+public class FamilyFragment
+        extends Fragment {
 
     private MusicPlayer mMusicPlayer;
 
+    public FamilyFragment() {
+
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.word_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.word_list, container, false);
 
         final ArrayList<Word> words = new ArrayList<Word>();
         words.add(new Word(R.raw.family_father, "father", "әpә", R.drawable.family_father));
@@ -33,9 +36,9 @@ public class FamilyActivity
         words.add(new Word(R.raw.family_grandmother, "grandmother", "ama", R.drawable.family_grandmother));
         words.add(new Word(R.raw.family_grandfather, "grandfather", "paapa", R.drawable.family_grandfather));
 
-        WordAdapter adapter = new WordAdapter(this, words, R.color.category_family);
+        WordAdapter adapter = new WordAdapter(getActivity(), words, R.color.category_family);
 
-        ListView listView = (ListView) findViewById(R.id.word_item);
+        ListView listView = (ListView) rootView.findViewById(R.id.word_item);
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -48,20 +51,18 @@ public class FamilyActivity
                 Word word = words.get(position);
 
                 if (mMusicPlayer == null) {
-                    mMusicPlayer = new MusicPlayer(FamilyActivity.this, word.getMiwokAudio());
+                    mMusicPlayer = new MusicPlayer(getActivity(), word.getMiwokAudio());
                 }
 
                 mMusicPlayer.play();
             }
         });
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
+        return rootView;
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         releaseMediaPlayer();
 
@@ -72,15 +73,5 @@ public class FamilyActivity
             mMusicPlayer.releaseMediaPlayer();
             mMusicPlayer = null;
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

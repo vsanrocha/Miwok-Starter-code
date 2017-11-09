@@ -1,24 +1,26 @@
 package com.example.android.miwok;
 
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class PhrasesActivity extends AppCompatActivity {
+public class PhrasesFragment extends Fragment {
 
     private MusicPlayer mMusicPlayer;
 
+    public PhrasesFragment() {
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.word_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.word_list, container, false);
 
         final ArrayList<Word> words = new ArrayList<Word>();
         words.add(new Word(R.raw.phrase_where_are_you_going, "Where are you going?", "minto wuksus"));
@@ -33,9 +35,9 @@ public class PhrasesActivity extends AppCompatActivity {
         words.add(new Word(R.raw.phrase_come_here, "Come here.", "әnni'nem"));
 
 
-        WordAdapter adapter = new WordAdapter(this, words, R.color.category_phrases);
+        WordAdapter adapter = new WordAdapter(getActivity(), words, R.color.category_phrases);
 
-        ListView listView = (ListView) findViewById(R.id.word_item);
+        ListView listView = (ListView) rootView.findViewById(R.id.word_item);
 
         listView.setAdapter(adapter);
 
@@ -49,20 +51,19 @@ public class PhrasesActivity extends AppCompatActivity {
                 Word word = words.get(position);
 
                 if (mMusicPlayer == null) {
-                    mMusicPlayer = new MusicPlayer(PhrasesActivity.this, word.getMiwokAudio());
+                    mMusicPlayer = new MusicPlayer(getActivity(), word.getMiwokAudio());
                 }
 
                 mMusicPlayer.play();
             }
         });
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        return rootView;
 
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         releaseMediaPlayer();
 
@@ -73,15 +74,5 @@ public class PhrasesActivity extends AppCompatActivity {
             mMusicPlayer.releaseMediaPlayer();
             mMusicPlayer = null;
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
